@@ -215,6 +215,15 @@
                 }
             }
 
+            // Ordenar los meses
+            let meses_array = Array.from(meses)
+            var all_months = ['Asesoría Enero','Asesoría Febrero','Asesoría Marzo', 'Asesoría Abril','Asesoría Mayo','Asesoría Junio','Asesoría Julio','Asesoría Agosto','Asesoría Septiembre','Asesoría Octubre','Asesoría Noviembre','Asesoría Diciembre'];
+            meses_array.sort(function(a,b){
+                return all_months.indexOf(a) > all_months.indexOf(b);
+            });
+            meses = new Set(meses_array);
+
+            // ???
             if(i == 0){gMeses = meses}
 
             // Asesorías dadas cada mes
