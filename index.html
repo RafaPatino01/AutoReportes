@@ -18,30 +18,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoReportes</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.0/lib/bundle.min.js"></script>
 </head>
 
-<body>
+<body class="bg-light">
     <main role="main" class="flex-shrink-0">
-        <div class="container">
-            <h1 class="my-5">Auto-Reportes</h1>
-            <div class="border p-2">
-                <form id="myForm">
-                    <input type="file" id="csvFile" accept=".csv" multiple="multiple"/>
-                </form>
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6 border border-5 rounded rounded-3 p-3 bg-white shadow-lg">
+                    <div class="row">
+                        <div class="col-6">
+                            <img class="w-100" src="https://www.up.edu.mx/sites/default/files//captura_de_pantalla_2019-02-12_a_las_12.49.38.png" alt="">
+                        </div>
+                        <div class="col-6">
+                            <h1 class="mt-5 mb-0">Auto-Reportes</h1>
+                            <p class="text-secondary">Resumen de las asesorías de la UP</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3"></div>
             </div>
-            <hr>
-            <div id="myProgress">
-                <div id="myBar"></div>
-            </div>
-            <hr>
             <br>
-            <button type="button" id="btn" onclick="calcular()" class="btn btn-primary my-4">Calcular</button> 
-        </div>
+            <div class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6 border-end border-start border-bottom border-5 rounded rounded-3 p-3 bg-white shadow-lg">
+                    <div class="border p-2">
+                        <p class="text-secondary">Ingresa los archivos en CSV</p>
+                        <form id="myForm">
+                            <input type="file" id="csvFile" accept=".csv" multiple="multiple"/>
+                        </form>
+                    </div>
+                    <hr>
+                    <div id="myProgress">
+                        <div id="myBar"></div>
+                    </div>
+                    <hr>
+                    <br>
+                    <button type="button" id="btn" onclick="calcular()" class="btn btn-primary my-4">Calcular</button>         
+                </div>
+                <div class="col-lg-3"></div>
+            </div>
+            </div>
     </main>
 
 
@@ -184,23 +206,30 @@
             }
             n_asesorias_ciclo[i] = dict
 
+            // Nombres alumnos
+            const alumnos = new Set()
+            for(let j=0; j < df["NAME_ALUMNOS"].count(); j++){
+                alumnos.add(df["NAME_ALUMNOS"].iat(j))
+            }
 
-            // Alumnos atendidos por ciclo 
+            // Alumnos atendidos por ciclo
             dict = {}
             for(let item of ciclos){
-                let ciclo_df = df.query(df["ADMIT_TERM"].eq(item))
-
-                let atendidos_df = ciclo_df["INPUT"].ge(1)
-
                 let atendidos_ciclo = 0
-                for(let j = 0; j<atendidos_df.count(); j++){
-                    if(atendidos_df.iat(j) == true){
-                        atendidos_ciclo++
+                
+                for(let alumno of alumnos){
+                    let atendidos_df = df.query(df["ADMIT_TERM"].eq(item).and(df["NAME_ALUMNOS"].eq(alumno)))["INPUT"].ge(1)
+
+                    // Si tuvo por lo menos una asesoría
+                    for(let j = 0; j<atendidos_df.count(); j++){
+                        if(atendidos_df.iat(j) == true){
+                            atendidos_ciclo++
+                            break
+                        }
                     }
                 }
 
-                dict[item] = atendidos_ciclo
-
+                dict[item] = atendidos_ciclo //Atendidos por ciclo
             }
             n_atendidos_ciclo[i] = dict
 
@@ -262,10 +291,6 @@
             
 
             // Alumnos sin asesoría
-            const alumnos = new Set()
-            for(let j=0; j < df["NAME_ALUMNOS"].count(); j++){
-                alumnos.add(df["NAME_ALUMNOS"].iat(j))
-            }
             let count = 0
             for(let item of alumnos){
                 let alumno_df = df.query(df["NAME_ALUMNOS"].eq(item))
@@ -330,13 +355,13 @@
             var width = 1;
             var id = setInterval(frame, 10);
             function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-                i = 0;
-            } else {
-                width++;
-                elem.style.width = width + "%";
-            }
+                if (width >= 50) {
+                    clearInterval(id);
+                    i = 0;
+                } else {
+                    width++;
+                    elem.style.width = width + "%";
+                }
             }
         }
 
